@@ -1,101 +1,170 @@
-import Image from "next/image";
+// app/page.tsx
+'use client'; // 이 줄을 추가하세요
 
-export default function Home() {
+import React, { useState } from 'react';
+
+export default function HomePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+    setMessage(data.message);
+
+    // 로그인 성공 여부에 따라 상태 업데이트
+    if (response.ok) {
+      setIsLoggedIn(true);
+      toggleModal(); // 로그인 성공 후 모달 닫기
+    } else {
+      setIsLoggedIn(false);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div>
+      <nav style={navStyle}>
+        <div style={logoStyle}>메인 이름</div>
+        <ul style={ulStyle}>
+          <li style={liStyle}>항목 1</li>
+          <li style={liStyle}>항목 2</li>
+          <li style={liStyle}>항목 3</li>
+          <li style={liStyle}>항목 4</li>
+          <li style={liStyle}>항목 5</li>
+          <li style={liStyle} onClick={toggleModal}>로그인</li>
+        </ul>
+      </nav>
+      <h1>{isLoggedIn ? `환영합니다, ${email}!` : '하이'}</h1> {/* 로그인 상태에 따라 메시지 변경 */}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {isModalOpen && (
+        <div style={modalOverlayStyle}>
+          <div style={modalStyle}>
+            <h2>로그인</h2>
+            <form onSubmit={handleLogin}>
+              <div>
+                <label>
+                  이메일:
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={inputStyle} 
+                  />
+                </label>
+              </div>
+              <div>
+                <label>
+                  비밀번호:
+                  <input 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={inputStyle} 
+                  />
+                </label>
+              </div>
+              <button type="submit" style={buttonStyle}>로그인</button>
+              <button type="button" onClick={toggleModal} style={closeButtonStyle}>닫기</button>
+            </form>
+            {message && <p>{message}</p>}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
     </div>
   );
 }
+
+// 스타일 정의 (위와 동일)
+
+// 스타일 정의 (위와 동일)
+
+
+// 스타일 정의
+const navStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '10px 20px',
+  backgroundColor: '#fff',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+};
+
+const logoStyle: React.CSSProperties = {
+  fontSize: '24px',
+  fontWeight: 'bold',
+};
+
+const ulStyle: React.CSSProperties = {
+  listStyleType: 'none',
+  display: 'flex',
+  margin: 0,
+  padding: 0,
+};
+
+const liStyle: React.CSSProperties = {
+  margin: '0 15px',
+  cursor: 'pointer',
+};
+
+const modalOverlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+
+const modalStyle: React.CSSProperties = {
+  backgroundColor: '#fff',
+  padding: '20px',
+  borderRadius: '8px',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+};
+
+const inputStyle: React.CSSProperties = {
+  display: 'block',
+  margin: '10px 0',
+  padding: '8px',
+  width: '100%',
+  borderRadius: '4px',
+  border: '1px solid #ccc',
+};
+
+const buttonStyle: React.CSSProperties = {
+  marginTop: '10px',
+  padding: '10px 15px',
+  backgroundColor: '#0070f3',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+};
+
+const closeButtonStyle: React.CSSProperties = {
+  marginTop: '10px',
+  padding: '10px 15px',
+  backgroundColor: '#ccc',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+};
