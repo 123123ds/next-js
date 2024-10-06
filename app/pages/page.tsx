@@ -1,14 +1,24 @@
-// app/page.tsx
-'use client'; // 이 줄을 추가하세요
+// app/Home/page.tsx
+'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { authState } from '../authAtom';
+import Navbar from '../Navbar/page'; // Navbar 컴포넌트 import
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
+  const [auth, setAuth] = useRecoilState(authState);
+
+  useEffect(() => {
+    const storedAuth = localStorage.getItem('authState');
+    if (storedAuth) {
+      setAuth(JSON.parse(storedAuth));
+    }
+  }, [setAuth]);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -16,7 +26,6 @@ export default function HomePage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: {
@@ -28,29 +37,20 @@ export default function HomePage() {
     const data = await response.json();
     setMessage(data.message);
 
-    // 로그인 성공 여부에 따라 상태 업데이트
     if (response.ok) {
-      setIsLoggedIn(true);
-      toggleModal(); // 로그인 성공 후 모달 닫기
+      const newAuth = { isLoggedIn: true, email };
+      setAuth(newAuth);
+      localStorage.setItem('authState', JSON.stringify(newAuth));
+      toggleModal();
     } else {
-      setIsLoggedIn(false);
+      setAuth({ isLoggedIn: false, email: '' });
     }
   };
 
   return (
     <div>
-      <nav style={navStyle}>
-        <div style={logoStyle}>메인 이름</div>
-        <ul style={ulStyle}>
-          <li style={liStyle}>항목 1</li>
-          <li style={liStyle}>항목 2</li>
-          <li style={liStyle}>항목 3</li>
-          <li style={liStyle}>항목 4</li>
-          <li style={liStyle}>항목 5</li>
-          <li style={liStyle} onClick={toggleModal}>로그인</li>
-        </ul>
-      </nav>
-      <h1>{isLoggedIn ? `환영합니다, ${email}!` : '하이'}</h1> {/* 로그인 상태에 따라 메시지 변경 */}
+      <Navbar toggleModal={toggleModal} /> {/* Navbar 추가 */}
+      <h1>{auth.isLoggedIn ? `환영합니다, ${auth.email}!` : '하이'}</h1>
 
       {isModalOpen && (
         <div style={modalOverlayStyle}>
@@ -90,9 +90,7 @@ export default function HomePage() {
   );
 }
 
-// 스타일 정의 (위와 동일)
-
-// 스타일 정의 (위와 동일)
+// 스타일 정의 (모달, 버튼 등은 기존과 동일)
 
 
 // 스타일 정의
@@ -103,6 +101,7 @@ const navStyle: React.CSSProperties = {
   padding: '10px 20px',
   backgroundColor: '#fff',
   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+  flexWrap: 'wrap', // 반응형을 위해 추가
 };
 
 const logoStyle: React.CSSProperties = {
@@ -115,6 +114,7 @@ const ulStyle: React.CSSProperties = {
   display: 'flex',
   margin: 0,
   padding: 0,
+  flexWrap: 'wrap', // 반응형을 위해 추가
 };
 
 const liStyle: React.CSSProperties = {
