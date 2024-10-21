@@ -29,7 +29,16 @@ const Navbar: React.FC<{ toggleModal: () => void }> = ({ toggleModal }) => {
 
   // 메인 이름 클릭 시 Pages로 이동
   const handleLogoClick = () => {
-    router.push('/p ages'); // "Pages" 페이지로 이동
+    router.push('/pages'); // "Pages" 페이지로 이동
+  };
+
+  // "안녕하세요, {auth.email}!" 클릭 시 동작
+  const handleGreetingClick = () => {
+    if (auth.isLoggedIn) {
+      router.push('/mypage'); // 마이페이지로 이동
+    } else {
+      toggleModal(); // 로그인 팝업 열기
+    }
   };
 
   return (
@@ -43,7 +52,7 @@ const Navbar: React.FC<{ toggleModal: () => void }> = ({ toggleModal }) => {
         <li style={liStyle} onClick={() => handleItemClick('항목 5')}>항목 5</li>
         {auth.isLoggedIn ? (
           <>
-            <li style={liStyle}>안녕하세요, {auth.email}!</li>
+            <li style={liStyle} onClick={handleGreetingClick}>안녕하세요, {auth.email}!</li>
             <li style={liStyle} onClick={handleLogout}>로그아웃</li>
           </>
         ) : (
@@ -53,6 +62,9 @@ const Navbar: React.FC<{ toggleModal: () => void }> = ({ toggleModal }) => {
     </nav>
   );
 };
+
+
+
 
 // 스타일 정의
 const navStyle: React.CSSProperties = {

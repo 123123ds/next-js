@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
+import { useRouter } from 'next/navigation';
 import { authState } from '../authAtom';
 import Navbar from '../Navbar/page'; // Navbar 컴포넌트 import
 
@@ -12,6 +13,7 @@ export default function HomePage() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [auth, setAuth] = useRecoilState(authState);
+  const router = useRouter(); // useRouter 초기화
 
   useEffect(() => {
     const storedAuth = localStorage.getItem('authState');
@@ -45,6 +47,10 @@ export default function HomePage() {
     } else {
       setAuth({ isLoggedIn: false, email: '' });
     }
+  };
+
+  const handleBookClick = (index: number) => {
+    router.push(`/Move?bookingId=${index}`); // 예매 번호를 URL 쿼리 파라미터로 추가
   };
 
   return (
@@ -86,14 +92,55 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      <div style={cardContainerStyle}>
+        {Array.from({ length: 10 }).map((_, index) => (
+          <div key={index} style={cardStyle}>
+            <h3>영화 제목 {index + 1}</h3>
+            <p>상영 시간: 12:00 PM</p>
+            <button 
+              style={bookButtonStyle} 
+              onClick={() => handleBookClick(index)} // 버튼 클릭 시 예매 페이지로 이동
+            >
+              예매하기
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-// 스타일 정의 (모달, 버튼 등은 기존과 동일)
-
 
 // 스타일 정의
+
+const cardContainerStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  marginTop: '20px',
+};
+
+const cardStyle: React.CSSProperties = {
+  backgroundColor: '#fff',
+  border: '1px solid #ccc',
+  borderRadius: '8px',
+  padding: '20px',
+  margin: '10px',
+  width: '150px',
+  textAlign: 'center',
+  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+};
+
+const bookButtonStyle: React.CSSProperties = {
+  padding: '10px',
+  backgroundColor: '#0070f3',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+};
+
 const navStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
