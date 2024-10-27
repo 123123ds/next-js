@@ -1,15 +1,26 @@
-// app/api/login/route.ts
 import { NextResponse } from 'next/server';
 
+export async function GET(request: Request) {
+  // GET 요청 처리
+  return NextResponse.json({ message: 'GET 요청 성공' });
+}
+
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
+  // POST 요청 처리
+  return NextResponse.json({ message: 'POST 요청 성공' });
+}
 
-  // 여기에서 사용자 인증 로직을 구현하세요.
-  // 예를 들어, DB에서 사용자 정보를 조회하고 비밀번호를 확인하는 과정입니다.
+// 잘못된 메서드 처리
+export async function OPTIONS(request: Request) {
+  return NextResponse.json({ message: 'OPTIONS 요청 성공' }, {
+    status: 200,
+    headers: {
+      'Allow': 'GET, POST, OPTIONS',
+    },
+  });
+}
 
-  if (email === 'test@example.com' && password === 'password') {
-    return NextResponse.json({ message: '로그인 성공' });
-  } else {
-    return NextResponse.json({ message: '로그인 실패' }, { status: 401 });
-  }
+// 모든 메서드에 대한 기본 처리
+export async function handler(request: Request) {
+  return NextResponse.json({ message: `Method ${request.method} Not Allowed` }, { status: 405 });
 }
